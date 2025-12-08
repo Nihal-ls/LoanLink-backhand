@@ -8,7 +8,7 @@ const app = express()
 const port = process.env.PORT || 5000
 const cors = require("cors")
 app.use(cors())
-
+app.use(express.json())
 const uri = process.env.URI;
 const client = new MongoClient(uri, {
     serverApi: {
@@ -31,13 +31,14 @@ async function run() {
         // Send a ping to confirm a successful connection
         const db = client.db('loansDB')
         const loansCollection = db.collection('loans')
+        const usersCollection = db.collection('users')
 
-      
+
         app.get('/Allloans', async (req, res) => {
 
             const result = await loansCollection.find().toArray()
             res.send(result)
-        })  
+        })
         //  home loans
         app.get('/Homeloans', async (req, res) => {
 
@@ -50,7 +51,15 @@ async function run() {
             const result = await loansCollection.findOne({ _id: new ObjectId(id) })
             res.send(result)
         })
+        //    saving user and updating
 
+        app.post('/users', async (req, res) => {
+            const userData = req.body
+
+            const result = await usersCollection.insertOne(userData)
+
+            res.send(result)
+        })
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
