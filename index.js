@@ -32,7 +32,7 @@ async function run() {
         const db = client.db('loansDB')
         const loansCollection = db.collection('loans')
         const usersCollection = db.collection('users')
-
+        const appliedLoanCollection = db.collection('Application-collection')
 
         app.get('/Allloans', async (req, res) => {
 
@@ -86,6 +86,13 @@ async function run() {
             const result = await usersCollection.findOne({ email })
             res.send({ role: result?.role })
         })
+
+        app.post('/loan-application', async (req, res) => {
+            const loanData = req.body
+            const result = await appliedLoanCollection.insertOne(loanData)
+           res.send(result)
+        })
+
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
