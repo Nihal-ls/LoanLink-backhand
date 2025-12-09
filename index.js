@@ -72,16 +72,19 @@ async function run() {
                     }
                 })
 
-                res.send(result)
-                return
-
+                return res.send(result)
             }
 
             console.log('saving  user');
-
             const result = await usersCollection.insertOne(userData)
-
             res.send(result)
+        })
+
+        // user role
+        app.get('/users/role/:email', async (req, res) => {
+            const email = req.params.email
+            const result = await usersCollection.findOne({ email })
+            res.send({ role: result?.role })
         })
 
         await client.db("admin").command({ ping: 1 });
