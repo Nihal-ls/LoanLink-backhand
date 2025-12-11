@@ -79,7 +79,12 @@ async function run() {
             const result = await usersCollection.insertOne(userData)
             res.send(result)
         })
+        //   getting user
+        app.get('/users', async (req, res) => {
 
+            const result = await usersCollection.find().toArray()
+            res.send(result)
+        })
         // user role
         app.get('/users/role/:email', async (req, res) => {
             const email = req.params.email
@@ -90,7 +95,19 @@ async function run() {
         app.post('/loan-application', async (req, res) => {
             const loanData = req.body
             const result = await appliedLoanCollection.insertOne(loanData)
+            res.send(result)
+        })
+        app.get('/loan-application/:email', async (req, res) => {
+            const email = req.params.email
+            const result = await appliedLoanCollection.find({ email }).toArray()
+            res.send(result)
+        })
+        // updating role
+        app.patch('/update-role', async (req, res) => {
+          const {email,role} = req.body
+          const result = await usersCollection.updateOne({email}, { $set: { role: role } })
            res.send(result)
+       
         })
 
 
