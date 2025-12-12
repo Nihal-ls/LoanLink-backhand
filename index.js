@@ -94,6 +94,7 @@ async function run() {
 
         app.post('/loan-application', async (req, res) => {
             const loanData = req.body
+            loanData.status = 'pending';
             const result = await appliedLoanCollection.insertOne(loanData)
             res.send(result)
         })
@@ -102,12 +103,21 @@ async function run() {
             const result = await appliedLoanCollection.find({ email }).toArray()
             res.send(result)
         })
+        // getting applications for admin
+        app.get('/loan-application', async (req, res) => {
+            const result = await appliedLoanCollection.find().toArray()
+            res.send(result)
+        })
+
+
+
+
         // updating role
         app.patch('/update-role', async (req, res) => {
-          const {email,role} = req.body
-          const result = await usersCollection.updateOne({email}, { $set: { role: role } })
-           res.send(result)
-       
+            const { email, role } = req.body
+            const result = await usersCollection.updateOne({ email }, { $set: { role: role } })
+            res.send(result)
+
         })
 
 
