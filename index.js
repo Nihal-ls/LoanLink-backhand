@@ -85,6 +85,11 @@ async function run() {
             const result = await usersCollection.find().toArray()
             res.send(result)
         })
+
+
+
+
+
         // user role
         app.get('/users/role/:email', async (req, res) => {
             const email = req.params.email
@@ -120,6 +125,16 @@ async function run() {
 
         })
 
+
+        app.delete('/all-loans/:id', async (req, res) => {
+            const id = req.params.id
+
+            const result = await loansCollection.deleteOne({
+                _id: new ObjectId(id)
+            })
+
+            res.send(result)
+        })
 
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
