@@ -108,6 +108,18 @@ async function run() {
             const result = await appliedLoanCollection.find({ email }).toArray()
             res.send(result)
         })
+        //    deleting a pending application
+        app.delete('/loan-application/:id', async (req, res) => {
+            const id = req.params.id
+
+            const result = await appliedLoanCollection.deleteOne({
+                _id: new ObjectId(id)
+            })
+
+            res.send(result)
+        })
+
+
         // getting applications for admin
         app.get('/loan-application', async (req, res) => {
             const result = await appliedLoanCollection.find().toArray()
