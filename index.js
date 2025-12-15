@@ -43,14 +43,44 @@ async function run() {
         // add loan-manager
         app.post('/add-loans', async (req, res) => {
             const loanData = req.body
-            loanData.created_at= new Date().toISOString()
+            loanData.created_at = new Date().toISOString()
             const result = await loansCollection.insertOne(loanData)
             res.send(result)
         })
+        // manage manager loans
+        app.get('/manager-loan/:email', async (req, res) => {
+            const email = req.params.email
+            const result = await loansCollection.find({ created_by: email }).toArray()
+            res.send(result)
+        })
 
+        // deleting managers loan
+        app.delete('/manager-loans/:id', async (req, res) => {
+            const id = req.params.id
 
+            const result = await loansCollection.deleteOne({
+                _id: new ObjectId(id)
+            })
 
+            res.send(result)
+        })
 
+        // updating loans
+        app.put('/manager-loan/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedData = req.body;
+
+            const filter = { _id: new ObjectId(id) };
+
+            const updateDoc = {
+                $set: {
+                    ...updatedData
+                }
+            };
+
+            const result = await loansCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
 
         //  home loans
         app.get('/Homeloans', async (req, res) => {
