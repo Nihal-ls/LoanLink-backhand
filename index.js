@@ -39,6 +39,19 @@ async function run() {
             const result = await loansCollection.find().toArray()
             res.send(result)
         })
+
+        // add loan-manager
+        app.post('/add-loans', async (req, res) => {
+            const loanData = req.body
+            loanData.created_at= new Date().toISOString()
+            const result = await loansCollection.insertOne(loanData)
+            res.send(result)
+        })
+
+
+
+
+
         //  home loans
         app.get('/Homeloans', async (req, res) => {
 
