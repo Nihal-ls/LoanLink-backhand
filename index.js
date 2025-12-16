@@ -32,9 +32,9 @@ async function run() {
         const db = client.db('loansDB')
         const loansCollection = db.collection('loans')
         const ManagerloansCollection = db.collection('Manager-Loans')
-
         const usersCollection = db.collection('users')
         const appliedLoanCollection = db.collection('Application-collection')
+        const approvedLoansCollection = db.collection('Approved-collection')
 
         app.get('/Allloans', async (req, res) => {
 
@@ -87,7 +87,7 @@ async function run() {
         app.get('/manager-data', async (req, res) => {
 
             const searchText = req.query.search
-            const result = await ManagerloansCollection.find({ loanTitle: {$regex: searchText,$options: "i" } }).toArray()
+            const result = await ManagerloansCollection.find({ loanTitle: { $regex: searchText, $options: "i" } }).toArray()
             res.send(result)
 
         })
@@ -179,6 +179,45 @@ async function run() {
             res.send(result)
         })
 
+        //   gettingg pending loans
+
+        app.get('/Pending-application', async (req, res) => {
+            try {
+                const result = await appliedLoanCollection
+                    .find({ status: 'pending' })
+                    .toArray()
+
+                res.send(result)
+            } catch (error) {
+                res.send({ message: 'Server error' })
+            }
+        })
+
+        //  approving loan
+        
+        app.post('/loan-application/approve/:id', async (req, res) => {
+            const id = req.params.id;
+
+            try {
+                const loan = await appliedLoanCollection.findOne({ _id: new ObjectId(id) });
+
+                if (!loan) {
+                    return res.status(404).send({ message: 'Loan not found' });
+                }
+
+                await approvedLoansCollection.insertOne({
+                    ...loan,
+                    status: 'approved',
+                    approvedAt: new Date()
+                });
+
+                await appliedLoanCollection.deleteOne({ _id: new ObjectId(id) });
+
+                res.send({ success: true, message: 'Loan approved successfully' });
+            } catch (error) {
+                res.status(500).send({ message: 'Approval failed' });
+            }
+        });
 
 
 
