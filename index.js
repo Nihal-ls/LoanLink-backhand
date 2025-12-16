@@ -31,6 +31,8 @@ async function run() {
         // Send a ping to confirm a successful connection
         const db = client.db('loansDB')
         const loansCollection = db.collection('loans')
+        const ManagerloansCollection = db.collection('Manager-Loans')
+
         const usersCollection = db.collection('users')
         const appliedLoanCollection = db.collection('Application-collection')
 
@@ -44,13 +46,13 @@ async function run() {
         app.post('/add-loans', async (req, res) => {
             const loanData = req.body
             loanData.created_at = new Date().toISOString()
-            const result = await loansCollection.insertOne(loanData)
+            const result = await ManagerloansCollection.insertOne(loanData)
             res.send(result)
         })
         // manage manager loans
         app.get('/manager-loan/:email', async (req, res) => {
             const email = req.params.email
-            const result = await loansCollection.find({ created_by: email }).toArray()
+            const result = await ManagerloansCollection.find({ created_by: email }).toArray()
             res.send(result)
         })
 
@@ -58,7 +60,7 @@ async function run() {
         app.delete('/manager-loans/:id', async (req, res) => {
             const id = req.params.id
 
-            const result = await loansCollection.deleteOne({
+            const result = await ManagerloansCollection.deleteOne({
                 _id: new ObjectId(id)
             })
 
@@ -78,9 +80,17 @@ async function run() {
                 }
             };
 
-            const result = await loansCollection.updateOne(filter, updateDoc);
+            const result = await ManagerloansCollection.updateOne(filter, updateDoc);
             res.send(result);
         });
+        //    searching managers data
+        app.get('/manager-data', async (req, res) => {
+
+            const searchText = req.query.search
+            const result = await ManagerloansCollection.find({ loanTitle: {$regex: searchText,$options: "i" } }).toArray()
+            res.send(result)
+
+        })
 
         //  home loans
         app.get('/Homeloans', async (req, res) => {
