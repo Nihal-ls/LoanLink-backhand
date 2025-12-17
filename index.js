@@ -152,7 +152,8 @@ async function run() {
 
         app.post('/loan-application', async (req, res) => {
             const loanData = req.body
-            loanData.status = 'pending';
+            loanData.status = 'pending'
+            loanData.AppliedAt = new Date().toLocaleTimeString()
             const result = await appliedLoanCollection.insertOne(loanData)
             res.send(result)
         })
@@ -194,7 +195,7 @@ async function run() {
         })
 
         //  approving loan
-        
+
         app.post('/loan-application/approve/:id', async (req, res) => {
             const id = req.params.id;
 
@@ -218,6 +219,11 @@ async function run() {
                 res.status(500).send({ message: 'Approval failed' });
             }
         });
+
+        app.get('/approved-loans', async (req, res) => {
+            const result = await approvedLoansCollection.find().toArray()
+            res.send(result)
+        })
 
 
 
