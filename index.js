@@ -36,11 +36,41 @@ async function run() {
         const appliedLoanCollection = db.collection('Application-collection')
         const approvedLoansCollection = db.collection('Approved-collection')
 
+        //  all loan
         app.get('/Allloans', async (req, res) => {
+            try {
+                const { search, interest, maxLimit } = req.query;
 
-            const result = await loansCollection.find().toArray()
-            res.send(result)
-        })
+                let query = {};
+
+                // 🔍 SEARCH BY TITLE
+                if (search) {
+                    query.loanTitle = { $regex: search, $options: "i" };
+                }
+
+                // 📉 INTEREST RANGE FILTER (7 → 7.99)
+                if (interest) {
+                    const baseInterest = Number(interest);
+                    query.interestRate = {
+                        $gte: baseInterest,
+                        $lte: baseInterest + 0.99
+                    };
+                }
+
+                // 💰 MAX LIMIT FILTER
+                if (maxLimit) {
+                    query.maxLimit = { $lte: Number(maxLimit) };
+                }
+
+                const result = await loansCollection.find(query).toArray();
+                res.send(result);
+
+            } catch (error) {
+                res.status(500).send({ message: "Server error" });
+            }
+        });
+
+
 
         // add loan-manager
         app.post('/add-loans', async (req, res) => {
